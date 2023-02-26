@@ -200,253 +200,237 @@ std::vector<double> get_SLAE(
 
     while (t < T) {
 
+        norm_o = 0;
+        norm_w = 0;
 
+        A.clear();
 
-            norm_o = 0;
-            norm_w = 0;
+        for (int i = 0; i < Nx * Ny; ++i) {
+            //A.clear();
+            Tau_o[0] = 0;
+            Tau_w[0] = 0;
 
-            A.clear();
+            b[i] = 0;
 
-            for (int i = 0; i < Nx * Ny; ++i) {
-                //A.clear();
-                Tau_o[0] = 0;
-                Tau_w[0] = 0;
-
-                b[i] = 0;
-
-                // Upper boundary
-                if (i < Nx) {
-//                 b[i] += -2 * ky[i] / (hy * hy) * Neumann_up;
-                    b[i] += Neumann_up * ky[i];
-                    Tau_o[2] = 0;
-                    Tau[2] = 0;
-                    Tau_w[2] = 0;
-                    tpso2 = 0;
-                    tpsw2 = 0;
-                    dro_dsi2 = 0;
-                } else {
-                    Tau[2] = 2 * ky[i] * ky[i - Nx] / ((hy * hx) * (ky[i] + ky[i - Nx]));
-                    Tau_o[2] = Tau[2] * S(s[i], s[i - Nx], p[i], p[i - Nx]); //fill A1
-                    Tau_w[2] = Tau[2] * (1 - S(s[i], s[i - Nx], p[i], p[i - Nx])); //fill A2
-
-
-                    dro_dsi2 = Tau[2] * (p[i] - p[i - Nx]) * (p[i] > p[i - Nx]);
-                    drw_dsi2 = -Tau[2] * (p[i] - p[i - Nx]) * (p[i] > p[i - Nx]);
-
-                    A.insert_val(i, i - Nx, -Tau_o[2]);  //fill A1
-                    A.insert_val(i + Nx * Ny, i - Nx, -Tau_w[2]);  //fill A2
-                    A.insert_val(i, i + Nx * Ny -Nx, Tau[2] * (p[i] - p[i - Nx]) * (p[i] < p[i - Nx])); //fill A3
-                    A.insert_val(i+Nx*Ny, (i + Nx * Ny) -Nx, -Tau[2] * (p[i] - p[i - Nx]) * (p[i] < p[i - Nx])); //fill A4
-
-
-                    tpso2 = Tau_o[2] * (p[i] - p[i - Nx]) * S(s[i], s[i - Nx], p[i], p[i - Nx]);
-                    tpsw2 = Tau_w[2] * (p[i] - p[i - Nx]) * (1 - S(s[i], s[i - Nx], p[i], p[i - Nx]));
-                }
-
-                // Left boundary
-                if (i % Nx == 0) {
-//                 b[i] += -2 * kx[i] / (hx * hx) * (Neumann_left);
-                    b[i] += Neumann_left * kx[i];
-                    Tau_o[3] = 0;
-                    Tau[3] = 0;
-                    Tau_w[3] = 0;
-                    tpso3 = 0;
-                    tpsw3 = 0;
-                    dro_dsi3 = 0;
-
-                } else {
-                    Tau[3] = 2 * kx[i] * kx[i - 1] / ((hx * hx) * (kx[i] + kx[i - 1]));
-                    Tau_o[3] = Tau[3] * S(s[i], s[i - 1], p[i], p[i - 1]);
-                    Tau_w[3] = Tau[3] * (1 - S(s[i], s[i - 1], p[i], p[i - 1]));
-
-                    dro_dsi3 = Tau[3] * (p[i] - p[i - 1]) * (p[i] > p[i - 1]);
-                    drw_dsi3 = -Tau[3] * (p[i] - p[i - 1]) * (p[i] > p[i - 1]);
-
-                    A.insert_val(i, i - 1, -Tau_o[3]); //fill A1
-                    A.insert_val(i + Nx * Ny, i - 1, -Tau_w[3]);  //fill A2
-                    A.insert_val(i, (i + Nx * Ny) - 1, Tau[3] * (p[i] - p[i - 1]) * (p[i] < p[i - 1])); //fill A3
-                    A.insert_val(i+Nx*Ny, (i + Nx * Ny) - 1, -Tau[3] * (p[i] - p[i - 1]) * (p[i] < p[i - 1])); //fill A4
-
-                    tpso3 = Tau_o[3] * (p[i] - p[i - 1]) * S(s[i], s[i - 1], p[i], p[i - 1]);
-                    tpsw3 = Tau_o[3] * (p[i] - p[i - 1]) * (1 - S(s[i], s[i - 1], p[i], p[i - 1]));
-                }
-
-                // Right boundary
-                if ((i + 1) % Nx == 0) {
-//                 b[i] += -2 * kx[i] / (hx * hx) * (Neumann_right);
-                    b[i] += Neumann_right * kx[i];
-                    Tau_o[1] = 0;
-                    Tau_w[1] = 0;
-                    Tau[1] = 0;
-                    tpso1 = 0;
-                    tpsw1 = 0;
-                    dro_dsi1 = 0;
-                } else {
-                    Tau[1] = 2 * kx[i] * kx[i + 1] / ((hx * hx) * (kx[i] + kx[i + 1]));
-                    Tau_o[1] = Tau[1] * S(s[i], s[i + 1], p[i], p[i + 1]);
-                    Tau_w[1] = Tau[1] * (1 - S(s[i], s[i + 1], p[i], p[i + 1]));
-
-                    dro_dsi1 = Tau[1] * (p[i] - p[i + 1]) * (p[i] > p[i + 1]);
-                    drw_dsi1 = -Tau[1] * (p[i] - p[i + 1]) * (p[i] > p[i + 1]);
-
-                    A.insert_val(i, i + 1, -Tau_o[1]);   //fill A1
-                    A.insert_val(i + Nx * Ny, i + 1, -Tau_w[1]);  //fill A2
-                    A.insert_val(i, (i + Nx * Ny) + 1, Tau[1] * (p[i] - p[i + 1]) * (p[i] < p[i + 1])); //fill A3
-                    A.insert_val(i+Nx*Ny, (i + Nx * Ny) + 1, -Tau[1] * (p[i] - p[i + 1]) * (p[i] < p[i + 1])); //fill A4
-
-                    tpso1 = Tau_o[1] * (p[i] - p[i + 1]) * S(s[i], s[i + 1], p[i], p[i + 1]);
-                    tpsw1 = Tau_o[1] * (p[i] - p[i + 1]) * (1 - S(s[i], s[i + 1], p[i], p[i + 1]));
-                }
-
-                // Bottom boundary
-                if (i >= (Ny - 1) * Nx) {
-//                 b[i] += -2 * ky[i] / (hy * hy) * Neumann_down;
-                    b[i] += Neumann_down * ky[i];
-                    Tau_o[4] = 0;
-                    Tau_w[4] = 0;
-                    Tau[4] = 0;
-                    tpso4 = 0;
-                    tpsw4 = 0;
-                    dro_dsi4 = 0;
-                } else {
-                    Tau[4] = 2 * ky[i] * ky[i + Nx] / ((hy * hy) * (ky[i] + ky[i + Nx]));
-                    Tau_o[4] = Tau[4] * S(s[i], s[i + Nx], p[i], p[i + Nx]);
-                    Tau_w[4] = Tau[4] * (1 - S(s[i], s[i + Nx], p[i], p[i + Nx]));
-
-                    dro_dsi4 = Tau[4] * (p[i] - p[i + Nx]) * (p[i] > p[i + Nx]);
-                    drw_dsi4 = -Tau[4] * (p[i] - p[i + Nx]) * (p[i] > p[i + Nx]);
-
-                    A.insert_val(i, i + Nx, -Tau_o[4]);  //fill A1
-                    A.insert_val(i + Nx * Ny, i + Nx, -Tau_w[4]);  //fill A2
-                    A.insert_val(i, (i + Nx * Ny) + Nx, Tau[4] * (p[i] - p[i + Nx]) * (p[i] < p[i + Nx])); //fill A3
-                    A.insert_val(i+Nx*Ny, (i + Nx * Ny) + Nx, -Tau[4] * (p[i] - p[i + Nx]) * (p[i] < p[i + Nx])); //fill A4
-
-                    tpso4 = Tau_o[4] * (p[i] - p[i + Nx]) * S(p[i], p[i + Nx], p[i], p[i + Nx]);
-                    tpsw4 = Tau_o[4] * (p[i] - p[i + Nx]) * (1 - S(p[i], p[i + Nx], p[i], p[i + Nx]));
-                }
-
-                dro_dsi0 = dro_dsi1 + dro_dsi2 + dro_dsi3 + dro_dsi4 + phi[i] / dt;
-                drw_dsi0 = drw_dsi1 + drw_dsi2 + drw_dsi3 + drw_dsi4 - phi[i] / dt;
-
-                double WI = 0;
-                if (i == well1_index) {
-                    WI = computeWellIndex(kx[i], ky[i]);
-//                b[i] += WI * WellPressure1;
-                    r_o[i] -= k_o(WellPressure1, p[i], s[i]) * WI * (WellPressure1 - p[i]);
-                    r_w[i] -= k_w(WellPressure1, p[i], s[i]) * WI * (WellPressure1 - p[i]);
-                    Tau_o[0] = k_o(WellPressure1, p[i], s[i]) * WI;
-                    Tau_w[0] = k_w(WellPressure1, p[i], s[i]) * WI;
-                    dro_dsi0 += WI * (WellPressure1 - p[i]) * (WellPressure1 < p[i]);
-                    drw_dsi0 -= WI * (WellPressure1 - p[i]) * (WellPressure1 < p[i]);
-                }
-
-                if (i == well2_index) {
-                    WI = computeWellIndex(kx[i], ky[i]);
-
-                    Tau_o[0] = k_o(WellPressure2, p[i], s[i]) * WI;
-                    Tau_w[0] = k_w(WellPressure2, p[i], s[i]) * WI;
-//                b[i] += WI * WellPressure2;
-                    r_o[i] -= Tau_o[0] * (WellPressure2 - p[i]);
-                    r_w[i] -= Tau_w[0] * (WellPressure2 - p[i]);
-                    dro_dsi0 += WI * (WellPressure2 - p[i]) * (WellPressure2 < p[i]);
-                    drw_dsi0 -= WI * (WellPressure2 - p[i]) * (WellPressure2 < p[i]);
-
-                }
-
-                Tau_o[0] += Tau_o[1] + Tau_o[2] + Tau_o[3] + Tau_o[4];
-                Tau_w[0] += Tau_w[1] + Tau_w[2] + Tau_w[3] + Tau_w[4];
-
-                A.insert_val(i, i, Tau_o[0]);  //fill A1
-
-                A.insert_val(i + Nx * Ny, i, Tau_o[0]);  //fill A2
-
-                A.insert_val(i, i + Nx * Ny, dro_dsi0);  //fill A3
-
-                A.insert_val(i+Nx*Ny, i + Nx * Ny, dro_dsi0);  //fill A4
-
-                r_o[i] = phi[i] * (s[i] - s_prev[i]) / dt - (tpso1 + tpso2 + tpso3 + tpso4);
-                r_w[i] = phi[i] * (-s[i] + s_prev[i]) / dt - (tpsw1 + tpsw2 + tpsw3 + tpsw4);
-
-                b[i]-=r_o[i];
-                b[i+Nx*Ny]-=r_w[i];
-
-                norm_o += r_o[i] * r_o[i];
-                norm_w += r_w[i] * r_w[i];
-            }
-            norm_o = sqrt(norm_o) + sqrt(norm_w);
-            if (norm_o < eps) {
-                s_prev = s;
-                p_prev = p;
+            // Upper boundary
+            if (i < Nx) {
+                //  b[i] += -2 * ky[i] / (hy * hy) * Neumann_up;
+                b[i] += Neumann_up * ky[i];
+                Tau_o[2] = 0;
+                Tau[2] = 0;
+                Tau_w[2] = 0;
+                tpso2 = 0;
+                tpsw2 = 0;
+                dro_dsi2 = 0;
             } else {
-                //making JACOBIAN (JOPOGIKAN)
+                Tau[2] = 2 * ky[i] * ky[i - Nx] / ((hy * hx) * (ky[i] + ky[i - Nx]));
+                Tau_o[2] = Tau[2] * S(s[i], s[i - Nx], p[i], p[i - Nx]); //fill A1
+                Tau_w[2] = Tau[2] * (1 - S(s[i], s[i - Nx], p[i], p[i - Nx])); //fill A2
 
 
+                dro_dsi2 = Tau[2] * (p[i] - p[i - Nx]) * (p[i] > p[i - Nx]);
+                drw_dsi2 = -Tau[2] * (p[i] - p[i - Nx]) * (p[i] > p[i - Nx]);
 
-/*
-                delta p
-                delta s
+                A.insert_val(i, i - Nx, -Tau_o[2]);  //fill A1
+                A.insert_val(i + Nx * Ny, i - Nx, -Tau_w[2]);  //fill A2
+                A.insert_val(i, i + Nx * Ny -Nx, Tau[2] * (p[i] - p[i - Nx]) * (p[i] < p[i - Nx])); //fill A3
+                A.insert_val(i+Nx*Ny, (i + Nx * Ny) -Nx, -Tau[2] * (p[i] - p[i - Nx]) * (p[i] < p[i - Nx])); //fill A4
 
-                s_prev = s
-                p_prev = p
-                p=p_prev+delta(p)
-                s=s_prev+delta(s)
 
-                */
+                tpso2 = Tau_o[2] * (p[i] - p[i - Nx]) * S(s[i], s[i - Nx], p[i], p[i - Nx]);
+                tpsw2 = Tau_w[2] * (p[i] - p[i - Nx]) * (1 - S(s[i], s[i - Nx], p[i], p[i - Nx]));
             }
-        //solver
 
-        	std::vector<idx_t> ia(1,0), ja;
+            // Left boundary
+            if (i % Nx == 0) {
+                // b[i] += -2 * kx[i] / (hx * hx) * (Neumann_left);
+                b[i] += Neumann_left * kx[i];
+                Tau_o[3] = 0;
+                Tau[3] = 0;
+                Tau_w[3] = 0;
+                tpso3 = 0;
+                tpsw3 = 0;
+                dro_dsi3 = 0;
 
-        //-----------------
-                A.translate_csr(ia,ja,a);
-                std::cout<<"translate done"<<std::endl;
+            } else {
+                Tau[3] = 2 * kx[i] * kx[i - 1] / ((hx * hx) * (kx[i] + kx[i - 1]));
+                Tau_o[3] = Tau[3] * S(s[i], s[i - 1], p[i], p[i - 1]);
+                Tau_w[3] = Tau[3] * (1 - S(s[i], s[i - 1], p[i], p[i - 1]));
 
-                // std::vector<int> iia  = A.get_ia();
-                // std::vector<int> jja  = A.get_ja();
-                // std::vector<double> a  = A.get_a();
-                // for (int i = 0; i< iia.size(); ++i)
-                // {
-                //     ia.push_back(iia[i]);
-                //     ja.push_back(jja[i]);
+                dro_dsi3 = Tau[3] * (p[i] - p[i - 1]) * (p[i] > p[i - 1]);
+                drw_dsi3 = -Tau[3] * (p[i] - p[i - 1]) * (p[i] > p[i - 1]);
 
-                // }
+                A.insert_val(i, i - 1, -Tau_o[3]); //fill A1
+                A.insert_val(i + Nx * Ny, i - 1, -Tau_w[3]);  //fill A2
+                A.insert_val(i, (i + Nx * Ny) - 1, Tau[3] * (p[i] - p[i - 1]) * (p[i] < p[i - 1])); //fill A3
+                A.insert_val(i+Nx*Ny, (i + Nx * Ny) - 1, -Tau[3] * (p[i] - p[i - 1]) * (p[i] < p[i - 1])); //fill A4
 
-			    CSRMatrix B(ia, ja, a);
-			    //BICGSTAB< MaximalTransversal< WeightedReverseCuthillMckee< ILDUC > > > Solver;
-			    BICGSTAB< CPR< AMGRugeStuben<GaussSeidel, BICGSTAB<ILDUC> >, GaussSeidel, TwoStage> > Solver;
-			    std::vector<double> dx;
-			    Solver.GetParameters().SetRecursive("verbosity", "0");
-			    Solver.GetParameters().Set("Preconditioner:block_beg", 0);
-			    Solver.GetParameters().Set("Preconditioner:block_end", Nx*Ny);
-			    //Solver.GetParameters().Set("Preconditioner:Solver:Solver:inverse_estimation", "1");
-			    //Solver.GetParameters().Set("Preconditioner:Solver:Solver:drop_tolerance", "0.001");
-			    if (Solver.Setup(B) && Solver.Solve(b, dx))
-			    {
-			    	double alpha = 1.0, ds;
-			    	for(int i = 0; i < Nx; ++i)
-			    		for (int j = 0; j < Ny; ++j)
-			    		{
-			    			ds = -dx[Is(i, j)];
-			    			if (s(i, j) + ds < 0.0)
-			    				alpha = std::min(alpha, (0.0 - s(i, j)) / ds);
-			    			if (s(i, j) + ds > 1.0)
-			    				alpha = std::min(alpha, (1.0 - s(i, j)) / ds);
-			    		}
-			    	std::cout << " update alpha: " << alpha << std::endl;
-			    	for (size_t l = 0; l < x.size(); ++l)
-			    		x[l] -= alpha * dx[l];
-			    }
-			    else
-			    {
-			    	std::cout << "Matrix not solved!" << std::endl;
-			    	exit(-1) ;
-			    }
+                tpso3 = Tau_o[3] * (p[i] - p[i - 1]) * S(s[i], s[i - 1], p[i], p[i - 1]);
+                tpsw3 = Tau_o[3] * (p[i] - p[i - 1]) * (1 - S(s[i], s[i - 1], p[i], p[i - 1]));
+            }
 
+            // Right boundary
+            if ((i + 1) % Nx == 0) {
+                // b[i] += -2 * kx[i] / (hx * hx) * (Neumann_right);
+                b[i] += Neumann_right * kx[i];
+                Tau_o[1] = 0;
+                Tau_w[1] = 0;
+                Tau[1] = 0;
+                tpso1 = 0;
+                tpsw1 = 0;
+                dro_dsi1 = 0;
+            } else {
+                Tau[1] = 2 * kx[i] * kx[i + 1] / ((hx * hx) * (kx[i] + kx[i + 1]));
+                Tau_o[1] = Tau[1] * S(s[i], s[i + 1], p[i], p[i + 1]);
+                Tau_w[1] = Tau[1] * (1 - S(s[i], s[i + 1], p[i], p[i + 1]));
 
+                dro_dsi1 = Tau[1] * (p[i] - p[i + 1]) * (p[i] > p[i + 1]);
+                drw_dsi1 = -Tau[1] * (p[i] - p[i + 1]) * (p[i] > p[i + 1]);
 
+                A.insert_val(i, i + 1, -Tau_o[1]);   //fill A1
+                A.insert_val(i + Nx * Ny, i + 1, -Tau_w[1]);  //fill A2
+                A.insert_val(i, (i + Nx * Ny) + 1, Tau[1] * (p[i] - p[i + 1]) * (p[i] < p[i + 1])); //fill A3
+                A.insert_val(i+Nx*Ny, (i + Nx * Ny) + 1, -Tau[1] * (p[i] - p[i + 1]) * (p[i] < p[i + 1])); //fill A4
 
-        t+=1;
+                tpso1 = Tau_o[1] * (p[i] - p[i + 1]) * S(s[i], s[i + 1], p[i], p[i + 1]);
+                tpsw1 = Tau_o[1] * (p[i] - p[i + 1]) * (1 - S(s[i], s[i + 1], p[i], p[i + 1]));
+            }
+
+            // Bottom boundary
+            if (i >= (Ny - 1) * Nx) {
+                // b[i] += -2 * ky[i] / (hy * hy) * Neumann_down;
+                b[i] += Neumann_down * ky[i];
+                Tau_o[4] = 0;
+                Tau_w[4] = 0;
+                Tau[4] = 0;
+                tpso4 = 0;
+                tpsw4 = 0;
+                dro_dsi4 = 0;
+            } else {
+                Tau[4] = 2 * ky[i] * ky[i + Nx] / ((hy * hy) * (ky[i] + ky[i + Nx]));
+                Tau_o[4] = Tau[4] * S(s[i], s[i + Nx], p[i], p[i + Nx]);
+                Tau_w[4] = Tau[4] * (1 - S(s[i], s[i + Nx], p[i], p[i + Nx]));
+
+                dro_dsi4 = Tau[4] * (p[i] - p[i + Nx]) * (p[i] > p[i + Nx]);
+                drw_dsi4 = -Tau[4] * (p[i] - p[i + Nx]) * (p[i] > p[i + Nx]);
+
+                A.insert_val(i, i + Nx, -Tau_o[4]);  //fill A1
+                A.insert_val(i + Nx * Ny, i + Nx, -Tau_w[4]);  //fill A2
+                A.insert_val(i, (i + Nx * Ny) + Nx, Tau[4] * (p[i] - p[i + Nx]) * (p[i] < p[i + Nx])); //fill A3
+                A.insert_val(i+Nx*Ny, (i + Nx * Ny) + Nx, -Tau[4] * (p[i] - p[i + Nx]) * (p[i] < p[i + Nx])); //fill A4
+
+                tpso4 = Tau_o[4] * (p[i] - p[i + Nx]) * S(p[i], p[i + Nx], p[i], p[i + Nx]);
+                tpsw4 = Tau_o[4] * (p[i] - p[i + Nx]) * (1 - S(p[i], p[i + Nx], p[i], p[i + Nx]));
+            }
+
+            dro_dsi0 = dro_dsi1 + dro_dsi2 + dro_dsi3 + dro_dsi4 + phi[i] / dt;
+            drw_dsi0 = drw_dsi1 + drw_dsi2 + drw_dsi3 + drw_dsi4 - phi[i] / dt;
+
+            double WI = 0;
+            if (i == well1_index) {
+                WI = computeWellIndex(kx[i], ky[i]);
+                // b[i] += WI * WellPressure1;
+                r_o[i] -= k_o(WellPressure1, p[i], s[i]) * WI * (WellPressure1 - p[i]);
+                r_w[i] -= k_w(WellPressure1, p[i], s[i]) * WI * (WellPressure1 - p[i]);
+                Tau_o[0] = k_o(WellPressure1, p[i], s[i]) * WI;
+                Tau_w[0] = k_w(WellPressure1, p[i], s[i]) * WI;
+                dro_dsi0 += WI * (WellPressure1 - p[i]) * (WellPressure1 < p[i]);
+                drw_dsi0 -= WI * (WellPressure1 - p[i]) * (WellPressure1 < p[i]);
+            }
+
+            if (i == well2_index) {
+                WI = computeWellIndex(kx[i], ky[i]);
+
+                Tau_o[0] = k_o(WellPressure2, p[i], s[i]) * WI;
+                Tau_w[0] = k_w(WellPressure2, p[i], s[i]) * WI;
+                // b[i] += WI * WellPressure2;
+                r_o[i] -= Tau_o[0] * (WellPressure2 - p[i]);
+                r_w[i] -= Tau_w[0] * (WellPressure2 - p[i]);
+                dro_dsi0 += WI * (WellPressure2 - p[i]) * (WellPressure2 < p[i]);
+                drw_dsi0 -= WI * (WellPressure2 - p[i]) * (WellPressure2 < p[i]);
+
+            }
+
+            Tau_o[0] += Tau_o[1] + Tau_o[2] + Tau_o[3] + Tau_o[4];
+            Tau_w[0] += Tau_w[1] + Tau_w[2] + Tau_w[3] + Tau_w[4];
+
+            A.insert_val(i, i, Tau_o[0]);  //fill A1
+
+            A.insert_val(i + Nx * Ny, i, Tau_o[0]);  //fill A2
+
+            A.insert_val(i, i + Nx * Ny, dro_dsi0);  //fill A3
+
+            A.insert_val(i+Nx*Ny, i + Nx * Ny, dro_dsi0);  //fill A4
+
+            r_o[i] = phi[i] * (s[i] - s_prev[i]) / dt - (tpso1 + tpso2 + tpso3 + tpso4);
+            r_w[i] = phi[i] * (-s[i] + s_prev[i]) / dt - (tpsw1 + tpsw2 + tpsw3 + tpsw4);
+
+            b[i]-=r_o[i];
+            b[i+Nx*Ny]-=r_w[i];
+
+            norm_o += r_o[i] * r_o[i];
+            norm_w += r_w[i] * r_w[i];
+        }
+
+        norm_o = sqrt(norm_o) + sqrt(norm_w);
+        
+        if (norm_o < eps) {
+            s_prev = s;
+            p_prev = p;
+        } else {
+            // Make JACOBIAN (JOPOGIKAN)
+
+            /*
+            delta p
+            delta s
+
+            s_prev = s
+            p_prev = p
+            p=p_prev+delta(p)
+            s=s_prev+delta(s)
+            */
+        }
+
+    // Solver
+
+        std::vector<idx_t> ia(1,0), ja;
+        A.translate_csr(ia,ja,a);
+        std::cout<<"translate done"<<std::endl;
+
+        CSRMatrix B(ia, ja, a);
+        //BICGSTAB< MaximalTransversal< WeightedReverseCuthillMckee< ILDUC > > > Solver;
+        BICGSTAB< CPR< AMGRugeStuben<GaussSeidel, BICGSTAB<ILDUC> >, GaussSeidel, TwoStage> > Solver;
+        std::vector<double> dx;
+        Solver.GetParameters().SetRecursive("verbosity", "0");
+        Solver.GetParameters().Set("Preconditioner:block_beg", 0);
+        Solver.GetParameters().Set("Preconditioner:block_end", Nx*Ny);
+        //Solver.GetParameters().Set("Preconditioner:Solver:Solver:inverse_estimation", "1");
+        //Solver.GetParameters().Set("Preconditioner:Solver:Solver:drop_tolerance", "0.001");
+        if (Solver.Setup(B) && Solver.Solve(b, dx))
+        {
+            double alpha = 1.0, ds;
+            for(int i = 0; i < Nx; ++i)
+                for (int j = 0; j < Ny; ++j)
+                {
+                    ds = -dx[Is(i, j)];
+                    if (s(i, j) + ds < 0.0)
+                        alpha = std::min(alpha, (0.0 - s(i, j)) / ds);
+                    if (s(i, j) + ds > 1.0)
+                        alpha = std::min(alpha, (1.0 - s(i, j)) / ds);
+                }
+            std::cout << " update alpha: " << alpha << std::endl;
+            for (size_t l = 0; l < x.size(); ++l)
+                x[l] -= alpha * dx[l];
+        }
+        else
+        {
+            std::cout << "Matrix not solved!" << std::endl;
+            exit(-1);
+        }
+
+        t += 1;
     }
+
     auto end = std::chrono::steady_clock::now();
     auto reading_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
 
@@ -463,10 +447,9 @@ std::vector<double> get_SLAE(
     std::cout << "Save vector b as:\t" << output_path_b << std::endl;
     file.open(output_path_b);
     file << 2*Nx * Ny << std::endl;
-    for (int i = 0; i < 2*Nx * Ny; ++i) {
+    for (int i = 0; i < 2*Nx * Ny; ++i)
         file << b[i] << std::endl;
-    }
-//    std::cout<<<<std::endl;
+        
     file.close();
     end = std::chrono::steady_clock::now();
     reading_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
