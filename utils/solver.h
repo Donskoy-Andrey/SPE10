@@ -391,6 +391,8 @@ std::vector<double> get_SLAE(
             */
         }
 
+        A.write_to_file();
+
     // Solver
 
         std::vector<idx_t> ia(1,0), ja;
@@ -449,7 +451,7 @@ std::vector<double> get_SLAE(
     file << 2*Nx * Ny << std::endl;
     for (int i = 0; i < 2*Nx * Ny; ++i)
         file << b[i] << std::endl;
-        
+
     file.close();
     end = std::chrono::steady_clock::now();
     reading_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
