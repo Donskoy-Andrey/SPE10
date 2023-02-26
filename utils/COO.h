@@ -157,59 +157,86 @@ void print_matrix() {
     }
 }
 
-void translate_csr(std::vector<idx_t> &iia,std::vector<idx_t> &jja,std::vector<double> &aa){  
-        int *buf = new int[ja[ja.size() - 1] + 2];
-        for (int i = 0; i <ja[ja.size() - 1] + 2; i++){
-            buf[i] = 0;
-        }
-        for (int i = 0; i < a.size(); i++)
-        {
-            jja.push_back(ja[i]);
-            aa.push_back(a[i]);
+// void translate_csr(std::vector<idx_t> &iia, std::vector<idx_t> &jja, std::vector<double> &aa){  
+//         int *buf = new int[ja[ja.size() - 1] + 2];
+//         for (int i = 0; i < ja[ja.size() - 1] + 2; i++){
+//             buf[i] = 0;
+//         }
+//         for (int i = 0; i < a.size(); i++)
+//         {
+//             jja.push_back(ja[i]);
+//             aa.push_back(a[i]);
 
-            buf[ia[i] + 1]++;
-        }
-        std::cout << std::endl;
-        for (int i = 0; i < ja[ja.size() - 1] + 2; i++)
-        {
-            buf[i + 1] += buf[i];
-        }
-        for (int i = 0; i < ja[ja.size() - 1] + 2; i++)
-        {
-            iia.push_back(buf[i]);
-        }
+//             buf[ia[i] + 1]++;
+//         }
+//         std::cout << std::endl;
+//         for (int i = 0; i < ja[ja.size() - 1] + 2; i++)
+//         {
+//             buf[i + 1] += buf[i];
+//         }
+//         for (int i = 0; i < ja[ja.size() - 1] + 2; i++)
+//         {
+//             iia.push_back(buf[i]);
+//         }
 
-    //    std::cout << std::endl;
-    //    for (int i = 0; i < 10; i++) {
-    //        std::cout << ia[i] << " ";
-    //    }
-    //    std::cout << std::endl;
-    //    for (int i = 0; i < 10; i++) {
-    //        std::cout << ja[i] << " ";
-    //    }
-    //    std::cout << std::endl;
-    //    for (int i = 0; i < 10; i++) {
-    //        std::cout << a[i] << " ";
-    //    }
-    //    std::cout << std::endl;
-    //
-    //    for (int i = 0; i < 10; i++) {
-    //        std::cout << aa[i] << " ";
-    //    }
-    //    std::cout << std::endl;
-    //    for (int i = 0; i < 10; i++) {
-    //        std::cout << jja[i] << " ";
-    //    }
-    //    std::cout << std::endl;
-    //    for (int i = 0; i < 10; i++) {
-    //        std::cout << iia[i] << " ";
-    //    }
-    //    std::cout << std::endl;
+//         std::ofstream file;
+//         file.open("../data/A_csr.mtx");
+//         for (int i = 0; i < aa.size()+1; ++i) {
+//             file << iia[i] << " " << jja[i] << " " << aa[i] << std::endl;
+//         }
+// }
 
+void translate_csr(std::vector<idx_t> &iia, std::vector<idx_t> &jja, std::vector<double> &aa)
+{
+    const int nrows = 60*220*2;
+    const int ncols = a.size();
+
+    // Step 1: Initialize the CSR vectors
+    iia.resize(nrows + 1);
+    jja.resize(a.size());
+    aa.resize(a.size());
+
+    // Step 2: Count the number of non-zero elements in each row
+    std::vector<idx_t> nnz_row(nrows, 0);
+    for (idx_t k = 0; k < a.size(); k++) {
+        nnz_row[ia[k]]++;
+    }
+
+    // Step 3: Compute the prefix sum of nnz_row to obtain iia
+    idx_t cumsum = 0;
+    for (idx_t i = 0; i < nrows; i++) {
+        iia[i] = cumsum;
+        cumsum += nnz_row[i];
+    }
+    iia[nrows] = a.size();
+
+    // Step 4: Fill in jja and aa
+    std::vector<idx_t> next_row_idx(nrows, 0);
+    for (idx_t k = 0; k < a.size(); k++) {
+        idx_t row = ia[k];
+        idx_t idx = iia[row] + next_row_idx[row];
+        jja[idx] = ja[k];
+        aa[idx] = a[k];
+        next_row_idx[row]++;
+    }
+    #if SAVE_CSR_MATRIX
+        std::ofstream file;
+        file.open("../data/A_csr.mtx");
+        for (int i = 0; i < iia.size()+1; ++i) {
+            file << iia[i] << " ";
+        }
+        file << std::endl;
+        for (int i = 0; i < jja.size()+1; ++i) {
+            file << jja[i] << " ";
+        }
+        file << std::endl;
+        for (int i = 0; i < aa.size()+1; ++i) {
+            file << aa[i] << " ";
+        }
+    #endif
 }
-// void clear_csr(std::vector<idx_t> &iia,std::vector<idx_t> &jja,std::vector<double> &aa)
-// {  
-    
+
+
 /* Save matrix in COO format to ["../data/A.mtx" = default]*/
 void write_to_file(std::string filename = "../data/A.mtx") {
     std::ofstream file;
@@ -218,6 +245,5 @@ void write_to_file(std::string filename = "../data/A.mtx") {
         file << ia[i] << " " << ja[i] << " " << a[i] << std::endl;
     }
 }
-//std::vector<double>3 
 
 };

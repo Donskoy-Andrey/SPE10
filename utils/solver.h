@@ -14,8 +14,6 @@
 #include "solver_system/two_stage.h"
 
 #define ind(x, y, z) ((x)+(y)*Nx+(z)*Nx*Ny)
-
-
 #define Ip(i,j) (Sp + (j)*Ny + (j))
 #define Is(i,j) (Ss + (i)*Ny + (j))
 #define p(i,j) (x[Ip((i),(j))])
@@ -102,11 +100,6 @@ for i = 0 : n * m
     MAKING J-MATRIX
 
 
-
-
-
-
-
  ------------------------------------------------------------------------
     if i < Nx:
         [2]: b = -2Ky[i] / (hy**2) * (dirichlet_up)
@@ -115,15 +108,7 @@ for i = 0 : n * m
             A[i,i] += 2Kx[i] / (hx**2)
 
                     S   C   H   E   M   E
---------------------------------------------------------------------------
-
-
-
-
-
-
-*/
-
+--------------------------------------------------------------------------*/
 
 
 double k_o(double p_well, double p_i, double s_i) {
@@ -224,17 +209,17 @@ std::vector<double> get_SLAE(
                 dro_dsi2 = 0;
             } else {
                 Tau[2] = 2 * ky[i] * ky[i - Nx] / ((hy * hx) * (ky[i] + ky[i - Nx]));
-                Tau_o[2] = Tau[2] * S(s[i], s[i - Nx], p[i], p[i - Nx]); //fill A1
-                Tau_w[2] = Tau[2] * (1 - S(s[i], s[i - Nx], p[i], p[i - Nx])); //fill A2
+                Tau_o[2] = Tau[2] * S(s[i], s[i - Nx], p[i], p[i - Nx]); // Fill A1
+                Tau_w[2] = Tau[2] * (1 - S(s[i], s[i - Nx], p[i], p[i - Nx])); // Fill A2
 
 
                 dro_dsi2 = Tau[2] * (p[i] - p[i - Nx]) * (p[i] > p[i - Nx]);
                 drw_dsi2 = -Tau[2] * (p[i] - p[i - Nx]) * (p[i] > p[i - Nx]);
 
-                A.insert_val(i, i - Nx, -Tau_o[2]);  //fill A1
-                A.insert_val(i + Nx * Ny, i - Nx, -Tau_w[2]);  //fill A2
-                A.insert_val(i, i + Nx * Ny -Nx, Tau[2] * (p[i] - p[i - Nx]) * (p[i] < p[i - Nx])); //fill A3
-                A.insert_val(i+Nx*Ny, (i + Nx * Ny) -Nx, -Tau[2] * (p[i] - p[i - Nx]) * (p[i] < p[i - Nx])); //fill A4
+                A.insert_val(i, i - Nx, -Tau_o[2]);  // Fill A1
+                A.insert_val(i + Nx * Ny, i - Nx, -Tau_w[2]);  // Fill A2
+                A.insert_val(i, i + Nx * Ny -Nx, Tau[2] * (p[i] - p[i - Nx]) * (p[i] < p[i - Nx])); // Fill A3
+                A.insert_val(i+Nx*Ny, (i + Nx * Ny) -Nx, -Tau[2] * (p[i] - p[i - Nx]) * (p[i] < p[i - Nx])); // Fill A4
 
 
                 tpso2 = Tau_o[2] * (p[i] - p[i - Nx]) * S(s[i], s[i - Nx], p[i], p[i - Nx]);
@@ -260,10 +245,10 @@ std::vector<double> get_SLAE(
                 dro_dsi3 = Tau[3] * (p[i] - p[i - 1]) * (p[i] > p[i - 1]);
                 drw_dsi3 = -Tau[3] * (p[i] - p[i - 1]) * (p[i] > p[i - 1]);
 
-                A.insert_val(i, i - 1, -Tau_o[3]); //fill A1
-                A.insert_val(i + Nx * Ny, i - 1, -Tau_w[3]);  //fill A2
-                A.insert_val(i, (i + Nx * Ny) - 1, Tau[3] * (p[i] - p[i - 1]) * (p[i] < p[i - 1])); //fill A3
-                A.insert_val(i+Nx*Ny, (i + Nx * Ny) - 1, -Tau[3] * (p[i] - p[i - 1]) * (p[i] < p[i - 1])); //fill A4
+                A.insert_val(i, i - 1, -Tau_o[3]); // Fill A1
+                A.insert_val(i + Nx * Ny, i - 1, -Tau_w[3]);  // Fill A2
+                A.insert_val(i, (i + Nx * Ny) - 1, Tau[3] * (p[i] - p[i - 1]) * (p[i] < p[i - 1])); // Fill A3
+                A.insert_val(i+Nx*Ny, (i + Nx * Ny) - 1, -Tau[3] * (p[i] - p[i - 1]) * (p[i] < p[i - 1])); // Fill A4
 
                 tpso3 = Tau_o[3] * (p[i] - p[i - 1]) * S(s[i], s[i - 1], p[i], p[i - 1]);
                 tpsw3 = Tau_o[3] * (p[i] - p[i - 1]) * (1 - S(s[i], s[i - 1], p[i], p[i - 1]));
@@ -287,10 +272,10 @@ std::vector<double> get_SLAE(
                 dro_dsi1 = Tau[1] * (p[i] - p[i + 1]) * (p[i] > p[i + 1]);
                 drw_dsi1 = -Tau[1] * (p[i] - p[i + 1]) * (p[i] > p[i + 1]);
 
-                A.insert_val(i, i + 1, -Tau_o[1]);   //fill A1
-                A.insert_val(i + Nx * Ny, i + 1, -Tau_w[1]);  //fill A2
-                A.insert_val(i, (i + Nx * Ny) + 1, Tau[1] * (p[i] - p[i + 1]) * (p[i] < p[i + 1])); //fill A3
-                A.insert_val(i+Nx*Ny, (i + Nx * Ny) + 1, -Tau[1] * (p[i] - p[i + 1]) * (p[i] < p[i + 1])); //fill A4
+                A.insert_val(i, i + 1, -Tau_o[1]);   // Fill A1
+                A.insert_val(i + Nx * Ny, i + 1, -Tau_w[1]);  // Fill A2
+                A.insert_val(i, (i + Nx * Ny) + 1, Tau[1] * (p[i] - p[i + 1]) * (p[i] < p[i + 1])); // Fill A3
+                A.insert_val(i+Nx*Ny, (i + Nx * Ny) + 1, -Tau[1] * (p[i] - p[i + 1]) * (p[i] < p[i + 1])); // Fill A4
 
                 tpso1 = Tau_o[1] * (p[i] - p[i + 1]) * S(s[i], s[i + 1], p[i], p[i + 1]);
                 tpsw1 = Tau_o[1] * (p[i] - p[i + 1]) * (1 - S(s[i], s[i + 1], p[i], p[i + 1]));
@@ -314,10 +299,10 @@ std::vector<double> get_SLAE(
                 dro_dsi4 = Tau[4] * (p[i] - p[i + Nx]) * (p[i] > p[i + Nx]);
                 drw_dsi4 = -Tau[4] * (p[i] - p[i + Nx]) * (p[i] > p[i + Nx]);
 
-                A.insert_val(i, i + Nx, -Tau_o[4]);  //fill A1
-                A.insert_val(i + Nx * Ny, i + Nx, -Tau_w[4]);  //fill A2
-                A.insert_val(i, (i + Nx * Ny) + Nx, Tau[4] * (p[i] - p[i + Nx]) * (p[i] < p[i + Nx])); //fill A3
-                A.insert_val(i+Nx*Ny, (i + Nx * Ny) + Nx, -Tau[4] * (p[i] - p[i + Nx]) * (p[i] < p[i + Nx])); //fill A4
+                A.insert_val(i, i + Nx, -Tau_o[4]);  // Fill A1
+                A.insert_val(i + Nx * Ny, i + Nx, -Tau_w[4]);  // Fill A2
+                A.insert_val(i, (i + Nx * Ny) + Nx, Tau[4] * (p[i] - p[i + Nx]) * (p[i] < p[i + Nx])); // Fill A3
+                A.insert_val(i+Nx*Ny, (i + Nx * Ny) + Nx, -Tau[4] * (p[i] - p[i + Nx]) * (p[i] < p[i + Nx])); // Fill A4
 
                 tpso4 = Tau_o[4] * (p[i] - p[i + Nx]) * S(p[i], p[i + Nx], p[i], p[i + Nx]);
                 tpsw4 = Tau_o[4] * (p[i] - p[i + Nx]) * (1 - S(p[i], p[i + Nx], p[i], p[i + Nx]));
@@ -354,13 +339,13 @@ std::vector<double> get_SLAE(
             Tau_o[0] += Tau_o[1] + Tau_o[2] + Tau_o[3] + Tau_o[4];
             Tau_w[0] += Tau_w[1] + Tau_w[2] + Tau_w[3] + Tau_w[4];
 
-            A.insert_val(i, i, Tau_o[0]);  //fill A1
+            A.insert_val(i, i, Tau_o[0]);  // Fill A1
 
-            A.insert_val(i + Nx * Ny, i, Tau_o[0]);  //fill A2
+            A.insert_val(i + Nx * Ny, i, Tau_w[0]);  // Fill A2
 
-            A.insert_val(i, i + Nx * Ny, dro_dsi0);  //fill A3
+            A.insert_val(i, i + Nx * Ny, dro_dsi0);  // Fill A3
 
-            A.insert_val(i+Nx*Ny, i + Nx * Ny, dro_dsi0);  //fill A4
+            A.insert_val(i+Nx*Ny, i + Nx * Ny, drw_dsi0);  // Fill A4
 
             r_o[i] = phi[i] * (s[i] - s_prev[i]) / dt - (tpso1 + tpso2 + tpso3 + tpso4);
             r_w[i] = phi[i] * (-s[i] + s_prev[i]) / dt - (tpsw1 + tpsw2 + tpsw3 + tpsw4);
@@ -386,8 +371,8 @@ std::vector<double> get_SLAE(
 
             s_prev = s
             p_prev = p
-            p=p_prev+delta(p)
-            s=s_prev+delta(s)
+            p = p_prev + delta(p)
+            s = s_prev + delta(s)
             */
         }
 

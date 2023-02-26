@@ -5,6 +5,7 @@
 #define GET_SEPARATED_MESH true
 #define CREATE_SEPARATED_MATRIX true
 #define py_file false
+#define SAVE_CSR_MATRIX true
 
 /* Params for problem */
 #define Nx (60)
