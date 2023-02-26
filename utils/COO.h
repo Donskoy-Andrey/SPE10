@@ -1,11 +1,17 @@
 #pragma once
+
 #include <iostream>
 #include <vector>
 #include <algorithm>
 #include <string>
 #include <iostream>
 #include <iomanip>
-#include <fstream>
+#include "solver_system/bicgstab.h"
+#include "solver_system/amg_ruge_stuben.h"
+#include "solver_system/gauss_seidel.h"
+#include "solver_system/ilduc.h"
+#include "solver_system/cpr.h"
+#include "solver_system/two_stage.h"
 
 /*
 ---------------------------------------------------
@@ -26,13 +32,13 @@
 
 
 class COO {
-private:
+public:
+
     std::vector<int> ia = {};
     std::vector<int> ja = {};
     std::vector<double> a = {};
 
 
-public:
     COO() {}
 
     /* Return number of rows of matrix [if matrix NxN returns N] */
@@ -43,7 +49,7 @@ public:
 
     /* Insert value into the matrix */
     void insert_val(int row, int col, double value) {
-        if (value == 0){return;}
+        if (value == 0) { return; }
         if ((ia.empty()) ||
             ((row >= ia[ia.size() - 1]) && (col > ja[ja.size() - 1]))) {
             ia.push_back(row);
@@ -83,8 +89,7 @@ public:
         if (row > len_mat() - 1 || row > len_mat() - 1) {
             std::cerr << "out of range";
             throw;
-        }
-        else {
+        } else {
             int i = 0;
             while (ia[i] != row && i <= ia.size() - 1) {
                 i++;
@@ -120,29 +125,100 @@ public:
     }
 
 
-    void clear(){
-        ia={};
-        ja={};
-        a={};
-        return;
+    std::vector<int> get_ia() {
+        std::vector<int> ia_for_ret = ia;
+        return ia_for_ret;
     }
 
-    /* Print matrix */
-    void print_matrix() {
-        for (int i = 0; i < len_mat(); ++i) {
-            for (int j = 0; j < len_mat(); ++j) {
-                std::cout<<std::setw(5)<<this->operator()(i,j);
-            }
-            std::cout<<std::endl;
-        }
+    std::vector<int> get_ja() {
+        std::vector<int> ja_for_ret = ja;
+        return ja_for_ret;
     }
 
-    /* Save matrix in COO format to ["../data/A.mtx" = default]*/
-    void write_to_file(std::string filename = "../data/A.mtx"){
-        std::ofstream file;
-        file.open(filename);
-        for (int i = 0; i < ia.size(); ++i) {
-            file << ia[i] << " " << ja[i] << " " << a[i] << std::endl;
-        }
+    std::vector<double> get_a() {
+        std::vector<double> a_for_ret = a;
+        return a_for_ret;
     }
+
+void clear() {
+    ia = {};
+    ja = {};
+    a = {};
+    return;
+}
+
+/* Print matrix */
+void print_matrix() {
+    for (int i = 0; i < len_mat(); ++i) {
+        for (int j = 0; j < len_mat(); ++j) {
+            std::cout << std::setw(5) << this->operator()(i, j);
+        }
+        std::cout << std::endl;
+    }
+}
+
+void translate_csr(std::vector<idx_t> &iia,std::vector<idx_t> &jja,std::vector<double> &aa){  
+        int *buf = new int[ja[ja.size() - 1] + 2];
+        for (int i = 0; i <ja[ja.size() - 1] + 2; i++){
+            buf[i] = 0;
+        }
+        for (int i = 0; i < a.size(); i++)
+        {
+            jja.push_back(ja[i]);
+            aa.push_back(a[i]);
+
+            buf[ia[i] + 1]++;
+        }
+        std::cout << std::endl;
+        for (int i = 0; i < ja[ja.size() - 1] + 2; i++)
+        {
+            buf[i + 1] += buf[i];
+        }
+        for (int i = 0; i < ja[ja.size() - 1] + 2; i++)
+        {
+            iia.push_back(buf[i]);
+        }
+
+    //    std::cout << std::endl;
+    //    for (int i = 0; i < 10; i++) {
+    //        std::cout << ia[i] << " ";
+    //    }
+    //    std::cout << std::endl;
+    //    for (int i = 0; i < 10; i++) {
+    //        std::cout << ja[i] << " ";
+    //    }
+    //    std::cout << std::endl;
+    //    for (int i = 0; i < 10; i++) {
+    //        std::cout << a[i] << " ";
+    //    }
+    //    std::cout << std::endl;
+    //
+    //    for (int i = 0; i < 10; i++) {
+    //        std::cout << aa[i] << " ";
+    //    }
+    //    std::cout << std::endl;
+    //    for (int i = 0; i < 10; i++) {
+    //        std::cout << jja[i] << " ";
+    //    }
+    //    std::cout << std::endl;
+    //    for (int i = 0; i < 10; i++) {
+    //        std::cout << iia[i] << " ";
+    //    }
+    //    std::cout << std::endl;
+
+
+
+}
+
+    
+/* Save matrix in COO format to ["../data/A.mtx" = default]*/
+void write_to_file(std::string filename = "../data/A.mtx") {
+    std::ofstream file;
+    file.open(filename);
+    for (int i = 0; i < ia.size()+1; ++i) {
+        file << ia[i] << " " << ja[i] << " " << a[i] << std::endl;
+    }
+}
+//std::vector<double>3 
+
 };

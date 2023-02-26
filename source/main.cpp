@@ -37,14 +37,14 @@ int main(int argc, char **argv) {
 #if CREATE_SEPARATED_MATRIX
     COO A;
 
-    double b[Nx*Ny*2];
+    //double b[Nx*Ny*2];
     std::vector<double> s;
     std::vector<double> p;
     for (int i = 0; i < Nx*Ny; ++i) {
         s.push_back(0.75);
         p.push_back(100.);
     }
-    get_SLAE(A, b, kx_s, ky_s, kz_s,s,phiArray_s,p);
+    get_SLAE(A, kx_s, ky_s, kz_s,s,phiArray_s,p);
 #endif
 
 #if SAVE_ALL_MESH_AS_VTK
@@ -52,5 +52,8 @@ int main(int argc, char **argv) {
     saveToVTK(kx, ky, kz, phiArray);
 #endif
 
+#if py_file
+	system("python3 ../notebooks/Matrix.py frame_name");
+#endif
     return 0;
 }

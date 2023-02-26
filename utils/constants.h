@@ -4,6 +4,7 @@
 #define SAVE_ALL_MESH_AS_VTK false
 #define GET_SEPARATED_MESH true
 #define CREATE_SEPARATED_MATRIX true
+#if py_file false
 
 /* Params for problem */
 #define Nx (60)
@@ -21,7 +22,7 @@
 #define rw (1)
 #define S_by_oil (0.75)
 #define skinFactor (0)
-#define eps (0.01)
+//#define eps (1.0e-7)
 
 #define well1_index (1000)
 #define well2_index (Nx*Ny-1000)

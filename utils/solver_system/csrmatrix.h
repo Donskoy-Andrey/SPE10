@@ -1,6 +1,6 @@
 #ifndef _CSRMATRIX_H
 #define _CSRMATRIX_H
-
+//#include "../constants.h"
 #include "datatype.h"
 #include "vector.h"
 #include "row_accumulator.h"
