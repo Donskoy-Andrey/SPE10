@@ -4,7 +4,7 @@
 #define SAVE_ALL_MESH_AS_VTK false
 #define GET_SEPARATED_MESH true
 #define CREATE_SEPARATED_MATRIX true
-#if py_file false
+#define py_file false
 
 /* Params for problem */
 #define Nx (60)
