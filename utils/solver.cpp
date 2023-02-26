@@ -165,8 +165,8 @@ COO get_SLAE(
     double dro_dsi0, dro_dsi1, dro_dsi2, dro_dsi3, dro_dsi4;
     double drw_dsi0, drw_dsi1, drw_dsi2, drw_dsi3, drw_dsi4;
 
-    double r_o[Nx*Ny];
-    double r_w[Nx*Ny];
+    double r_o[Nx * Ny];
+    double r_w[Nx * Ny];
 
     double A2i, A2j, A3i, A3j, A4i, A4j;
 
@@ -181,8 +181,13 @@ COO get_SLAE(
     while (t < T) {
         norm_o = 0;
         norm_w = 0;
+        A.clear();
+        for (int i = 0; i < Nx*Ny; ++i) {
+            r_o[i]=0;
+            r_w[i]=0;
+        }
         for (int i = 0; i < Nx * Ny; ++i) {
-            A.clear();
+
             Tau_o[0] = 0;
             Tau_w[0] = 0;
 
@@ -209,8 +214,9 @@ COO get_SLAE(
 
                 A.insert_val(i, i - Nx, -Tau_o[2]);  //fill A1
                 A.insert_val(i + Nx * Ny, i - Nx, -Tau_w[2]);  //fill A2
-                A.insert_val(i, i + Nx * Ny -Nx, Tau[2] * (p[i] - p[i - Nx]) * (p[i] < p[i - Nx])); //fill A3
-                A.insert_val(i+Nx*Ny, (i + Nx * Ny) -Nx, -Tau[2] * (p[i] - p[i - Nx]) * (p[i] < p[i - Nx])); //fill A4
+                A.insert_val(i, i + Nx * Ny - Nx, Tau[2] * (p[i] - p[i - Nx]) * (p[i] < p[i - Nx])); //fill A3
+                A.insert_val(i + Nx * Ny, (i + Nx * Ny) - Nx,
+                             -Tau[2] * (p[i] - p[i - Nx]) * (p[i] < p[i - Nx])); //fill A4
 
 
                 tpso2 = Tau_o[2] * (p[i] - p[i - Nx]) * S(s[i], s[i - Nx], p[i], p[i - Nx]);
@@ -239,7 +245,7 @@ COO get_SLAE(
                 A.insert_val(i, i - 1, -Tau_o[3]); //fill A1
                 A.insert_val(i + Nx * Ny, i - 1, -Tau_w[3]);  //fill A2
                 A.insert_val(i, (i + Nx * Ny) - 1, Tau[3] * (p[i] - p[i - 1]) * (p[i] < p[i - 1])); //fill A3
-                A.insert_val(i+Nx*Ny, (i + Nx * Ny) - 1, -Tau[3] * (p[i] - p[i - 1]) * (p[i] < p[i - 1])); //fill A4
+                A.insert_val(i + Nx * Ny, (i + Nx * Ny) - 1, -Tau[3] * (p[i] - p[i - 1]) * (p[i] < p[i - 1])); //fill A4
 
                 tpso3 = Tau_o[3] * (p[i] - p[i - 1]) * S(s[i], s[i - 1], p[i], p[i - 1]);
                 tpsw3 = Tau_o[3] * (p[i] - p[i - 1]) * (1 - S(s[i], s[i - 1], p[i], p[i - 1]));
@@ -266,7 +272,7 @@ COO get_SLAE(
                 A.insert_val(i, i + 1, -Tau_o[1]);   //fill A1
                 A.insert_val(i + Nx * Ny, i + 1, -Tau_w[1]);  //fill A2
                 A.insert_val(i, (i + Nx * Ny) + 1, Tau[1] * (p[i] - p[i + 1]) * (p[i] < p[i + 1])); //fill A3
-                A.insert_val(i+Nx*Ny, (i + Nx * Ny) + 1, -Tau[1] * (p[i] - p[i + 1]) * (p[i] < p[i + 1])); //fill A4
+                A.insert_val(i + Nx * Ny, (i + Nx * Ny) + 1, -Tau[1] * (p[i] - p[i + 1]) * (p[i] < p[i + 1])); //fill A4
 
                 tpso1 = Tau_o[1] * (p[i] - p[i + 1]) * S(s[i], s[i + 1], p[i], p[i + 1]);
                 tpsw1 = Tau_o[1] * (p[i] - p[i + 1]) * (1 - S(s[i], s[i + 1], p[i], p[i + 1]));
@@ -293,7 +299,8 @@ COO get_SLAE(
                 A.insert_val(i, i + Nx, -Tau_o[4]);  //fill A1
                 A.insert_val(i + Nx * Ny, i + Nx, -Tau_w[4]);  //fill A2
                 A.insert_val(i, (i + Nx * Ny) + Nx, Tau[4] * (p[i] - p[i + Nx]) * (p[i] < p[i + Nx])); //fill A3
-                A.insert_val(i+Nx*Ny, (i + Nx * Ny) + Nx, -Tau[4] * (p[i] - p[i + Nx]) * (p[i] < p[i + Nx])); //fill A4
+                A.insert_val(i + Nx * Ny, (i + Nx * Ny) + Nx,
+                             -Tau[4] * (p[i] - p[i + Nx]) * (p[i] < p[i + Nx])); //fill A4
 
                 tpso4 = Tau_o[4] * (p[i] - p[i + Nx]) * S(p[i], p[i + Nx], p[i], p[i + Nx]);
                 tpsw4 = Tau_o[4] * (p[i] - p[i + Nx]) * (1 - S(p[i], p[i + Nx], p[i], p[i + Nx]));
@@ -332,18 +339,18 @@ COO get_SLAE(
 
             A.insert_val(i, i, Tau_o[0]);  //fill A1
 
-            A.insert_val(i + Nx * Ny, i, Tau_o[0]);  //fill A2
+            A.insert_val(i + Nx * Ny, i, Tau_w[0]);  //fill A2
 
             A.insert_val(i, i + Nx * Ny, dro_dsi0);  //fill A3
 
-            A.insert_val(i+Nx*Ny, i + Nx * Ny, dro_dsi0);  //fill A4
+            A.insert_val(i + Nx * Ny, i + Nx * Ny, drw_dsi0);  //fill A4
 
-            r_o[i] = phi[i] * (s[i] - s_prev[i]) / dt - (tpso1 + tpso2 + tpso3 + tpso4);
-            r_w[i] = phi[i] * (-s[i] + s_prev[i]) / dt - (tpsw1 + tpsw2 + tpsw3 + tpsw4);
+            r_o[i] += phi[i] * (s[i] - s_prev[i]) / dt + (tpso1 + tpso2 + tpso3 + tpso4);
+            r_w[i] += phi[i] * (-s[i] + s_prev[i]) / dt + (tpsw1 + tpsw2 + tpsw3 + tpsw4);
 
-            b[i]-=r_o[i];
+            b[i] -= r_o[i];
 
-            b[i+Nx*Ny]-=r_w[i];
+            b[i + Nx * Ny] -= r_w[i];
 
             norm_o += r_o[i] * r_o[i];
             norm_w += r_w[i] * r_w[i];
@@ -370,7 +377,7 @@ COO get_SLAE(
         }
 
 
-        t+=1;
+        t += 1;
     }
     auto end = std::chrono::steady_clock::now();
     auto reading_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
