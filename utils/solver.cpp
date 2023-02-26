@@ -135,7 +135,7 @@ double computeWellIndex(
     double value;
     value =
             (2 * M_PI * hz * std::sqrt(kx * ky)) /
-            (std::log2(
+            (log(
                     (0.28 / rw) *
                     (std::sqrt(hx * hx * std::sqrt(ky / kx) + hy * hy * std::sqrt(kx / ky))) /
                     (std::pow((ky / kx), 1 / 4) + std::pow((kx / ky), 1 / 4) + skinFactor)
@@ -181,8 +181,9 @@ COO get_SLAE(
     while (t < T) {
         norm_o = 0;
         norm_w = 0;
+        A.clear();
         for (int i = 0; i < Nx * Ny; ++i) {
-            A.clear();
+
             Tau_o[0] = 0;
             Tau_w[0] = 0;
 
@@ -199,7 +200,7 @@ COO get_SLAE(
                 tpsw2 = 0;
                 dro_dsi2 = 0;
             } else {
-                Tau[2] = 2 * ky[i] * ky[i - Nx] / ((hy * hx) * (ky[i] + ky[i - Nx]));
+                Tau[2] = 2 * ky[i] * ky[i - Nx] / ((hy * hy) * (ky[i] + ky[i - Nx]));
                 Tau_o[2] = Tau[2] * S(s[i], s[i - Nx], p[i], p[i - Nx]); //fill A1
                 Tau_w[2] = Tau[2] * (1 - S(s[i], s[i - Nx], p[i], p[i - Nx])); //fill A2
 
