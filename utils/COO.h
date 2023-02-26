@@ -206,10 +206,9 @@ void translate_csr(std::vector<idx_t> &iia,std::vector<idx_t> &jja,std::vector<d
     //    }
     //    std::cout << std::endl;
 
-
-
 }
-
+// void clear_csr(std::vector<idx_t> &iia,std::vector<idx_t> &jja,std::vector<double> &aa)
+// {  
     
 /* Save matrix in COO format to ["../data/A.mtx" = default]*/
 void write_to_file(std::string filename = "../data/A.mtx") {

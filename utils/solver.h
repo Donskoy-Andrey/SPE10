@@ -394,7 +394,9 @@ std::vector<double> get_SLAE(
                 */
             }
         //solver
+
         	std::vector<idx_t> ia(1,0), ja;
+
         //-----------------
                 A.translate_csr(ia,ja,a);
                 std::cout<<"translate done"<<std::endl;
@@ -409,7 +411,7 @@ std::vector<double> get_SLAE(
 
                 // }
 
-			    CSRMatrix A(ia, ja, a);
+			    CSRMatrix B(ia, ja, a);
 			    //BICGSTAB< MaximalTransversal< WeightedReverseCuthillMckee< ILDUC > > > Solver;
 			    BICGSTAB< CPR< AMGRugeStuben<GaussSeidel, BICGSTAB<ILDUC> >, GaussSeidel, TwoStage> > Solver;
 			    std::vector<double> dx;
@@ -418,7 +420,7 @@ std::vector<double> get_SLAE(
 			    Solver.GetParameters().Set("Preconditioner:block_end", Nx*Ny);
 			    //Solver.GetParameters().Set("Preconditioner:Solver:Solver:inverse_estimation", "1");
 			    //Solver.GetParameters().Set("Preconditioner:Solver:Solver:drop_tolerance", "0.001");
-			    if (Solver.Setup(A) && Solver.Solve(b, dx))
+			    if (Solver.Setup(B) && Solver.Solve(b, dx))
 			    {
 			    	double alpha = 1.0, ds;
 			    	for(int i = 0; i < Nx; ++i)
