@@ -188,7 +188,7 @@ std::vector<double> get_SLAE(
     double eps = (0.01);
     bool check_eps = true;
     double t = 0;
-    double T = 0.5;
+    double T = 10;
     double norm_o;
     double norm_w;
     std::vector<double> s_prev = s;
@@ -197,13 +197,20 @@ std::vector<double> get_SLAE(
 
     int Np = Nx * Ny, Ns = Nx * Ny;
     int Sp = 0, Ss = Np;
-    std::vector<double> a, b(Np + Ns, 0.0);
-	std::vector<double> x(Np + Ns, 0.0), x0(Np + Ns, 0.0);
+    std::vector<double> a, b(2*Nx*Ny, 0.0);
+	std::vector<double> x(2*Nx*Ny, 0.0), x0(2*Nx*Ny, 0.0);
+
+    for (int i = 0; i < Nx*Ny; ++i){
+        x0[i] = p_prev[i];
+        x0[i + Nx*Ny] = s_prev[i];
+        x[i] = p_prev[i];
+        x[i + Nx*Ny] = s_prev[i];
+    }
 
     int iter = 0;
     while (t < T) {
         iter++;
-        std::cout<<"----------ITER: "<<iter<<"  --------------"<<std::endl;
+        std::cout<<"----------ITER: " << iter << "  --------------" << std::endl;
 
             norm_o = 0;
             norm_w = 0;
@@ -435,7 +442,7 @@ std::vector<double> get_SLAE(
 			    			if (s(i, j) + ds > 1.0)
 			    				alpha = std::min(alpha, (1.0 - s(i, j)) / ds);
 			    		}
-			    	std::cout << " update alpha: " << alpha << std::endl;
+			    	std::cout << "Update alpha: " << alpha << std::endl;
 			    	for (size_t l = 0; l < x.size(); ++l)
 			    		x[l] -= alpha * dx[l];
 			    }
@@ -448,13 +455,23 @@ std::vector<double> get_SLAE(
         s_prev = s;
         p_prev = p;
         for (int i = 0; i < Nx*Ny; ++i) {
-            delta_p[i] = x[i];
-            delta_s[i] = x[i+Nx*Ny];
-            p[i]=p_prev[i]+delta_p[i];
-            s[i]=s_prev[i]+delta_s[i];
+            delta_p[i] = -dx[i];
+            delta_s[i] = -dx[i+Nx*Ny];
+            p[i] = p_prev[i]+delta_p[i];
+            s[i] = s_prev[i]+delta_s[i];
         }
-        t+=1;
+        
+        t += 1;
     }
+
+    std::ofstream filetxt;
+    filetxt.open("../data/test.txt");
+    for (int i = 0; i < x.size()+1; ++i) {
+        if (x[i] != 0)
+            filetxt << x[i] << " " << i << std::endl;
+    }
+    filetxt << std::endl;
+ 
     auto end = std::chrono::steady_clock::now();
     auto reading_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
 
