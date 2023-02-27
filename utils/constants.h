@@ -14,13 +14,13 @@
 #define hx (1) // Step by x axis
 #define hy (1) // Step by y axis
 #define hz (1) // Step by z axis
-#define dt (1) // Step by time
+#define dt (0.001) // Step by time
 
 #define dirichlet_up (0)
 #define dirichlet_left (0)
 #define dirichlet_right (10)
 #define dirichlet_down (5)
-#define rw (1)
+#define rw (0.01)
 #define S_by_oil (0.75)
 #define skinFactor (0)
 //#define eps (1.0e-7)
