@@ -1,6 +1,6 @@
 # SPE10
 
-> NOTE: 
+> NOTE: \\
 [Project description](./data/description.pdf)
 
 # Some images
