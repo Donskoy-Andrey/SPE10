@@ -1,6 +1,6 @@
 # SPE10
 
-[Project description] (./data/description.pdf)
+[Project description](./data/description.pdf)
 
 # Some images
 <p align="center">
