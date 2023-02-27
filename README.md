@@ -1,20 +1,19 @@
 # SPE10
 
-\begin{center}
-\textbf{Задача 2-фазной фильтрации: метод Ньютона}
-\end{center}
 
-Постановка задачи:
+## Задача 2-фазной фильтрации: метод Ньютона}
+
+### Постановка задачи:
 
 
-\begin{equation}
+$
 \label{trivial}
 \left\{\begin{matrix}
 \phi \frac{\partial S}{\partial t} - div(S_{k}\bigtriangledown p) = g_{0}=0
 \\
 \phi \frac{\partial (1-S)}{\partial t} - div((1-S)k\bigtriangledown p) = g_{\omega }=0
 \end{matrix}\right.
-\end{equation}
+$
 
  Рассматривается скважина радиуса r. T - полное время интегрирования по времени, $\bigtriangleup t$ - шаг по времени, $t_0 = 0$, m - количество шагов, $S\in \left [ 0,1 \right ]$ - насыщение нефти, $S_0 = 0.75$, p - давление, $p_0 = 100$, $\phi = const$- пористость.
  
@@ -23,32 +22,32 @@
  0) Нулевое Ньютоновское приближение: $p^{0}=p_{0}$, $S^{0}=S_{0}$
  
  1) Изначально принимается $k=1$. По формуле невязки считаем $R_{0}^{k}$ и $R_{\omega}^{k}$:
-\begin{equation}
+$
 \label{trivial}
 R_{0}=\phi \frac{\partial S}{\partial t}-div(Sk\bigtriangledown p)-q_{0}=\phi \frac{S_{i}-S_{i}^{0}}{\bigtriangleup t}+\sum_{j}T_{ij}\begin{pmatrix}S_{i}, p_{i}> p_{j}
 \\ S_{j}, p_{i}<  p_{j}
 \end{pmatrix}-k(S_{i})WI(p_{bh}-p_{i})=0,
-\end{equation}
+$
 
 где $k(S_i) = 1$, если нагнетающая скважина. Если добывающая, то $k(S_i) = S_i$
 
 2) Проверка условия:
 
-\begin{equation}
+$
 \label{trivial}
 \left \|R_{0}^{k}  \right \|+\left \|R_{\omega }^{k}  \right \|< \varepsilon 
-\end{equation}
+$
 
 если условие выполнено, то $p_{0}=p^{k}$ и $S_{0}=S^{k}$. Если нет, переходим к 3 пункту.
 
 3) Вычисляем Якобиан:
 
-\begin{equation}
+$
 \label{trivial}
 J_{0}=\left (\frac{\partial R_{0} }{\partial p^{T}} \frac{\partial R_{0} }{\partial S^{T}} \right )
-\end{equation}
+$
 
-\begin{equation}
+$
 \label{trivial}
 J_0=\left\{\begin{matrix}\frac{\partial R_{0i} }{\partial p_{i}} =\sum T_{ij}\begin{pmatrix}S_{i}, p_{i}> p_{j}
 \\ S_{j}, p_{i}<  p_{j}
@@ -63,29 +62,28 @@ J_0=\left\{\begin{matrix}\frac{\partial R_{0i} }{\partial p_{i}} =\sum T_{ij}\be
 \\ 0, p_{i}<  p_{j}
 \end{pmatrix}
 \end{matrix}\right.
-\end{equation}
+$
 
 
 Используется 5-точечная схема конечных разностей для Якобиана:
  
- \begin{equation}
+$
 \label{trivial}
 \tau_1u_{i-1,j}-\tau_1u_{i,j}+\tau_2u_{i,j+1}-\tau_2u_{i,j}+\tau_3u_{i+1,j}-\tau_3u_{i,j}+\tau_4u_{i,j}
 -\tau_4u_{i,j-1}=r(x)=0
-\end{equation}
+$
 
-\begin{figure}[h!]
-
- \begin{center}
- \scalebox{0.5}{
-\includegraphics{5.png}
- } 
- \end {center}
- \end {figure}
+<!-- \begin{figure}[h!] -->
+  <!-- \begin{center} -->
+  <!-- \scalebox{0.5}{ -->
+<!-- \includegraphics{5.png} -->
+ <!-- }  -->
+ <!-- \end {center} -->
+<!-- \end {figure} -->
 
 4) Решаем систему:
 
-\begin{equation}
+$
 \label{trivial}
 J_0\begin{bmatrix}\bigtriangleup p
 \\ 
@@ -94,27 +92,27 @@ J_0\begin{bmatrix}\bigtriangleup p
 \\ 
 -R_{\omega }^{k}
 \end{bmatrix}
-\end{equation}
+$
 
 Если невязка сходится:
-\begin{equation}
+$
 \label{trivial}
 \begin{Vmatrix}-R_0
 \\ 
 -R_\omega 
 \end{Vmatrix}=0, 
-\end{equation}
+$
 
 то задача решена: $p_{0}=p^{k}$ и $S_{0}=S^{k}$.
 
 5) Следующий шаг Ньютона:
 
-\begin{equation}
+$
 \begin{matrix}
 p^{k+1}=p^{k}+\alpha\bigtriangleup p\\ 
 S^{k+1}=S^{k}+\alpha\bigtriangleup S,
 \end{matrix}
-\end{equation}
+$
 
 где $\alpha$ - подбирается так, чтобы значения давления и насыщенности не выходили за область допустимых значений. 
 
